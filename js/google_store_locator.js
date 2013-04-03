@@ -26,7 +26,7 @@
   // Set parent class
   Drupal.GSL.dataSource.parent = storeLocator.StaticDataFeed;
 
-  // Inherit parent's prototype
+  // Inherit parent's prototyp
   Drupal.GSL.dataSource.prototype = new Drupal.GSL.dataSource.parent;
 
   // Correct the constructor pointer
@@ -37,7 +37,7 @@
 
   /**
    * Overriden: Set the stores for this data feed.
-   * @param {!Array.<!storeLocator.Store>} stores the stores for this data feed.
+   * @param {!Array.<!storeLocator.Store>} stores  the stores for this data feed.
    *
    * - Sets _stores since storeLocator variable is minified
    */
@@ -98,26 +98,13 @@
       // set latitude and longitude
       var position = new google.maps.LatLng(Ycoord, Xcoord);
 
-      // create a FeatureSet since features are required by storeLocator.Store()
+      // create an FeatureSet since features are required by storeLocator.Store()
       var storeFeatureSet = new storeLocator.FeatureSet;
       for (var prop in itemFeatures) {
         // only add rendered features
         if (prop.search(/_rendered$/i) > 0) {
-          if(prop == "gsl_feature_filter_list_rendered" && itemFeatures[prop]) {
-            // It's a non-empty feature filter list. We need to create an id and
-            // display name for it. It will be coming in as a comma separated
-            // string.
-            var list = itemFeatures[prop].split(',');
-            for(var j = 0; j < list.length; j++) {
-              // Go through each feature and add it.
-              var label = list[j].trim();
-              // Generate the id from the label by getting rid of all the
-              // whitespace in it.
-              var id = label.replace(/\s/g,'');
-              var storeFeature = new storeLocator.Feature(id, label);
-              storeFeatureSet.add(storeFeature);
-            }
-          }
+          var storeFeature = new storeLocator.Feature(prop, itemFeatures[prop]);
+          storeFeatureSet.add(storeFeature);
         }
       }
 
@@ -129,6 +116,7 @@
 
     return stores;
   };
+
 
 /**
  * @extends storeLocator.Panel
@@ -157,7 +145,7 @@
   // Set parent class
   Drupal.GSL.Panel.parent = storeLocator.Panel;
 
-  // Inherit parent's prototype
+  // Inherit parent's prototyp
   Drupal.GSL.Panel.prototype = Drupal.GSL.Panel.parent.prototype;
 
   // Correct the constructor pointer
@@ -217,6 +205,7 @@
     Drupal.GSL.currentMap.mapid = mapid;
   }
 
+
   /**
    * Create map on window load
    */
@@ -239,15 +228,17 @@
           continue;
         }
 
+
         var $panel = $('.google-store-locator-panel', $container);
         if (!$panel.length) {
           continue;
         }
 
+
         var map_settings = Drupal.settings.gsl[mapid];
         var locator = {};
 
-        // Get data
+        // get data
         locator.data = new Drupal.GSL.dataSource(map_settings['datapath']);
 
         locator.elements = {
@@ -256,7 +247,7 @@
         };
 
         locator.map = new google.maps.Map(locator.elements.canvas, {
-          // Default center on North America.
+          //Default center on North America.
           center: new google.maps.LatLng(map_settings['maplat'], map_settings['maplong']),
           zoom: map_settings['mapzoom'],
           mapTypeId: map_settings['maptype'] || google.maps.MapTypeId.ROADMAP
@@ -264,20 +255,9 @@
 
         Drupal.GSL.setCurrentMap(locator.map, mapid);
 
-        var feature_list = map_settings['feature_list'];
-        var storeFeatureSet = new storeLocator.FeatureSet;
-        // Loop through the feature list and add each from the admin provided allowed values.
-        for(var feature in feature_list) {
-          // Mimic the id creation we did when parsing the stores.
-          var id = feature_list[feature].replace(/\s/g,'');
-          var storeFeature = new storeLocator.Feature(id, feature_list[feature]);
-          storeFeatureSet.add(storeFeature);
-        }
-
         locator.view = new storeLocator.View(locator.map, locator.data, {
           markerIcon: map_settings['marker_url'],
-          geolocation: false,
-          features: storeFeatureSet
+          geolocation: false
         });
 
         locator.panel = new Drupal.GSL.Panel(locator.elements.panel, {
@@ -286,7 +266,7 @@
           locationSearchLabel: map_settings['search_label']
         });
 
-      } // mapid loop
+      } // /mapid loop
 
       locator = null;
     }
